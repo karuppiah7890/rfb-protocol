@@ -120,7 +120,13 @@ RRE, TRLE, Hextile, and ZRLE.
 encodings since they provide the best compression for typical
 desktops. Opinion - I don't know the date and time at which this RFC
 was out and if it was updated a lot and what's the last update date
-and time. Not sure what current means here. And what
+and time. Not sure what current means here. And what new encodings
+are out there
+13. Clients generally also support Hextile, which was often used
+by older RFB servers that didn’t support TRLE. - I think this is
+more like supporting old RFB servers. If I'm going to build a
+client and server now, I could just build with just a few
+encodings and support that alone!
 
 ### Questions
 1. [Point 7] How does the 24 bit and 16 bit get converted to
@@ -142,3 +148,50 @@ encoding??
 
 
 
+## Protocol Versions and Extensions
+1. The RFB protocol has evolved through three published versions: 3.3, 3.7, and
+3.8.
+2. This document primarily documents the final version 3.8
+3. Under no circumstances should an implementation use a protocol version number
+other than one defined in this document. - I mean, if we are the developers of
+the rfb server and client and we are not interested in maintaining compatibility
+with the open standards to support other clients and servers, then I guess we
+don't have to worry about this. Or else we will have to 😅
+4. Over the years, different implementations of RFB have attempted to use
+different version numbers to add undocumented extensions, with the result being
+that to interoperate, any unknown 3.x version must be treated as 3.3, so it is
+not possible to add a 3.9 or higher version in a backward-compatible fashion.
+5. Future evolution of RFB will use 4.x version numbers.
+6. It is not necessary to change the protocol version number to extend the
+protocol
+7. The protocol can be extended within an existing version by:
+
+New encodings
+A new encoding type can be added to the protocol relatively easily while
+maintaining compatibility with existing clients and servers. For existing
+servers, when new clients communicate with it, the existing servers will simply
+ignore requests for a new encoding that they don’t support. For existing clients
+communicating with new servers, the existing clients will never request the new
+encoding so will never see rectangles encoded that way.
+
+
+Pseudo-encodings
+In addition to genuine encodings, a client can request a "pseudo-encoding" to
+declare to the server that it supports a certain extension to the protocol. A
+server that does not support the extension will simply ignore the
+pseudo-encoding. Note that this means the client must assume that the server
+does not support the extension until it gets some extension-specific
+confirmation from the server.
+
+New security types
+Adding a new security type gives full flexibility in modifying the behavior of
+the protocol without sacrificing compatibility with existing clients and
+servers. A client and server that agree on a new security type can effectively
+talk whatever protocol they like after that -- it doesn’t necessarily have to be
+anything like the RFB protocol.
+
+### Questions
+1. [Point 7] The security type point is weird - I mean, they can talk in any
+protocol? Also, is this about secure communications at the level that no one can
+tamper with data in transit or read through it?
+2. [Point 7] Security type - Can we do end to end encryption?

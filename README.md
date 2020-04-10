@@ -8,3 +8,5 @@ PDF version - https://tools.ietf.org/pdf/rfc6143
 
 Some possibly related protocols I found out
 - https://en.wikipedia.org/wiki/Remote_Desktop_Protocol
+
+My notes are [here](remote-framebuffer-protocol.md)
