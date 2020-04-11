@@ -195,3 +195,76 @@ anything like the RFB protocol.
 protocol? Also, is this about secure communications at the level that no one can
 tamper with data in transit or read through it?
 2. [Point 7] Security type - Can we do end to end encryption?
+
+## Protocol Messages
+1. The RFB protocol can operate over any reliable transport, either byte-stream
+or message based.
+2. It usually operates over a TCP/IP connection
+3. There are three stages to the protocol
+4. First stage is the handshaking phase, the purpose of which is to agree upon
+the protocol version and the type of security to be used
+5. The second stage is an initialization phase where the client and server
+exchange ClientInit and ServerInit messages.
+6. The final stage is the normal protocol interaction.
+7. The client can send whichever messages it wants, and may receive messages
+from the server as a result
+8. All these messages begin with a message-type byte, followed by
+message-specific data
+9. The following descriptions of protocol messages use the basic types U8, U16,
+U32, S8, S16, and S32. These represent, respectively, 8-, 16-, and 32-bit
+unsigned integers and 8-, 16-, and 32-bit signed integers.
+10. All multiple-byte integers (other than pixel values themselves) are in big
+endian order (most significant byte first).
+11. Some messages use arrays of the basic types, with the number of entries in
+the array determined from fields preceding the array.
+12. The type PIXEL means a pixel value of bytesPerPixel bytes
+13. bytesPerPixel is the number of bits-per-pixel divided by 8
+14. The bits-per-pixel is agreed by the client and server, either in the
+ServerInit message or a SetPixelFormat message
+15. Several message formats include padding bits or bytes
+16. For maximum compatibility, messages should be generated with padding set to
+zero, but message recipients should not assume padding has any particular value
+
+### Questions
+1. [Point 1] What does reliable mean? messages always reach the destination?
+More like TCP and not something like UDP? And what does byte-stream and message
+based mean? And what's the difference between them?
+2. Should we really use the protocol mentioned here? May be I could create a
+protocol based on the concepts that are mentioned here. May be use existing
+protocols actually - like http, grpc, or just plain tcp and then work with it.
+Of course performance is a thing. May be plain tcp with some custom
+implementation might be performant but that would require lot of knowledge. May
+be I can do it with grpc and use the features of it?
+3. [Point 15, Point 16] Padding bits ? Meaning?
+
+## Handshake messages
+1. When an RFB client and server first connect, they exchange a sequence of
+handshake messages that determine
+    - the protocol version
+    - what type of connection security (if any) to use
+    - a password check if the security type requires it
+    - and some initialization information
+
+### ProtocolVersion Handshake
+1. Handshaking begins by the server sending the client a ProtocolVersion message
+2. This message from the server lets the client know which is the highest RFB
+protocol version number supported by the server
+3. The client then replies with a similar message giving the version number of
+the protocol that should actually be used - which may be different to that
+quoted by the server if the client supports only an older version of the
+protocol
+4. The only published protocol versions at this time are 3.3, 3.7, and 3.8
+5. Other version numbers are reported by some servers and clients, but should be
+interpreted as 3.3 since they do not implement the different handshake in 3.7 or
+3.8
+6. Addition of a new encoding or pseudo-encoding type does not require a change
+in protocol version, since a server can simply ignore encodings it does not
+understand.
+7. The ProtocolVersion message consists of 12 bytes interpreted as a string of
+ASCII characters in the format "RFB xxx.yyy\n" where xxx and yyy are the major
+and minor version numbers, left-padded with zeros:
+
+RFB 003.008\n (hex 52 46 42 20 30 30 33 2e 30 30 38 0a)
+
+Each character in the above line is a single byte. 
+
